@@ -1,0 +1,13 @@
+{
+  "name": "ny_post_cover",
+  "version": "1.0.0",
+  "description": "Get the Post's cover texted to your phone every morning.",
+  "main": "index.js",
+  "author": "cheshireoctopus",
+  "dependencies": {
+    "cheerio": "^0.22.0",
+    "dotenv": "^2.0.0",
+    "request": "^2.76.0",
+    "twilio": "^2.11.0"
+  }
+}
