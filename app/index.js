@@ -15,9 +15,7 @@ const app = express()
 app.use(express.static(__dirname + '/public'))
 
 app.get('/', (req, res) => {
-    res.send('index.html')
-
-
+    res.sendFile(index.html)
 })
 
 const sendMMS = (coverUrl) => {
@@ -35,6 +33,16 @@ const getCovers = () => request(URL, (error, response, html) => {
     const $ = cheerio.load(html)
     let covers = []
 
+    // test msg
+    twilioClient.messages.create({
+        to: RECIPIENT_NUMBER,
+        from: TWILIO_NUMBER,
+        body: 'getting covers',
+    }, (err, message) => {
+        if (message) console.log(message)
+        if (err) console.log(err)
+    })
+
     $('.featured-cover .entry-thumbnail.front source').each((i, element) => {
         covers.push($(element).attr('srcset'))
     })
@@ -46,7 +54,7 @@ const getCovers = () => request(URL, (error, response, html) => {
 const rule = new schedule.RecurrenceRule()
 rule.dayOfWeek = new schedule.Range(1, 5)
 rule.hour = 8
-rule.minute = 0
+rule.minute = 38
 
 // kicks off job
 schedule.scheduleJob(rule, () => getCovers())
