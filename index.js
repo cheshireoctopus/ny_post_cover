@@ -1,33 +1,42 @@
-require('dotenv').config();
+import dotenv from 'dotenv'
 import cheerio from 'cheerio'
 import request from 'request'
 import twilio from 'twilio'
+import schedule from 'node-schedule'
+
+dotenv.config()
 
 const URL = 'http://nypost.com/covers/'
-const { ACCOUNT_SID, AUTH_TOKEN, TWILIO_TEST_NUMBER, TEST_RECIPIENT } = process.env
+const { ACCOUNT_SID, AUTH_TOKEN, TWILIO_NUMBER, RECIPIENT_NUMBER } = process.env
+const twilioClient = twilio(ACCOUNT_SID, AUTH_TOKEN)
 
-const sendTxt = (covers) => {
-    //require the Twilio module and create a REST client
-    const client = twilio(ACCOUNT_SID, AUTH_TOKEN)
-    const body = covers.join(' ')
+// set reoccurring job every mon, tues, wed, thur, fri @ 0800
+const rule = new schedule.RecurrenceRule()
+rule.dayOfWeek = new schedule.Range(1, 5)
+rule.hour = 8
+rule.minute = 0
 
-    client.messages.create({
-        to: TEST_RECIPIENT,
-        from: TWILIO_TEST_NUMBER,
-        body,
+// kicks off job
+schedule.scheduleJob(rule, () => getCovers())
+
+const sendMMS = (coverUrl) => {
+    twilioClient.messages.create({
+        to: RECIPIENT_NUMBER,
+        from: TWILIO_NUMBER,
+        mediaUrl: coverUrl,
     }, (err, message) => {
     	if (message) console.log(message)
     	if (err) console.log(err)
     })
 }
 
-request(URL, (error, response, html) => {
+const getCovers = () => request(URL, (error, response, html) => {
     const $ = cheerio.load(html)
     let covers = []
 
     $('.featured-cover .entry-thumbnail.front source').each((i, element) => {
-    	covers.push($(element).attr('srcset'))
+        covers.push($(element).attr('srcset'))
     })
 
-    sendTxt([covers[0], covers[2]])
+    sendMMS(covers[0])
 })
