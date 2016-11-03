@@ -2,7 +2,7 @@
   "name": "ny_post_cover",
   "version": "1.0.0",
   "description": "Get the Post's cover texted to your phone every morning.",
-  "main": "build.js",
+  "main": "app/build.js",
   "author": "cheshireoctopus",
   "dependencies": {
     "cheerio": "^0.22.0",

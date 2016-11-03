@@ -39,10 +39,10 @@ var twilioClient = (0, _twilio2['default'])(ACCOUNT_SID, AUTH_TOKEN);
 var app = (0, _express2['default'])();
 
 app.use(_express2['default']['static'](__dirname + '/public'));
-
 app.get('/', function (req, res) {
-    res.send('index.html');
+    return res.sendFile('index.html', { root: __dirname + '/public' });
 });
+app.listen(process.env.PORT);
 
 var sendMMS = function sendMMS(coverUrl) {
     twilioClient.messages.create({
@@ -61,7 +61,7 @@ var getCovers = function getCovers() {
         var covers = [];
 
         $('.featured-cover .entry-thumbnail.front source').each(function (i, element) {
-            covers.push($(element).attr('srcset'));
+            return covers.push($(element).attr('srcset'));
         });
 
         sendMMS(covers[0]);
@@ -79,16 +79,9 @@ _nodeSchedule2['default'].scheduleJob(rule, function () {
     return getCovers();
 });
 
-app.listen(process.env.PORT, function () {
-    console.log('shit is doing down on ' + process.env.PORT);
-
-    // test msg
-    twilioClient.messages.create({
-        to: RECIPIENT_NUMBER,
-        from: TWILIO_NUMBER,
-        body: 'server is up and running'
-    }, function (err, message) {
-        if (message) console.log(message);
-        if (err) console.log(err);
+// keep herkou awake
+setInterval(function () {
+    (0, _request2['default'])('https://obscure-oasis-13928.herokuapp.com/', function (error, response, body) {
+        console.log('ding ding - wake up');
     });
-});
+}, 300000);

@@ -13,10 +13,8 @@ const twilioClient = twilio(ACCOUNT_SID, AUTH_TOKEN)
 const app = express()
 
 app.use(express.static(__dirname + '/public'))
-
-app.get('/', (req, res) => {
-    res.sendFile(index.html)
-})
+app.get('/', (req, res) => res.sendFile('index.html', { root: __dirname + '/public' }))
+app.listen(process.env.PORT)
 
 const sendMMS = (coverUrl) => {
     twilioClient.messages.create({
@@ -33,19 +31,7 @@ const getCovers = () => request(URL, (error, response, html) => {
     const $ = cheerio.load(html)
     let covers = []
 
-    // test msg
-    twilioClient.messages.create({
-        to: RECIPIENT_NUMBER,
-        from: TWILIO_NUMBER,
-        body: 'getting covers',
-    }, (err, message) => {
-        if (message) console.log(message)
-        if (err) console.log(err)
-    })
-
-    $('.featured-cover .entry-thumbnail.front source').each((i, element) => {
-        covers.push($(element).attr('srcset'))
-    })
+    $('.featured-cover .entry-thumbnail.front source').each((i, element) => covers.push($(element).attr('srcset')))
 
     sendMMS(covers[0])
 })
@@ -54,21 +40,14 @@ const getCovers = () => request(URL, (error, response, html) => {
 const rule = new schedule.RecurrenceRule()
 rule.dayOfWeek = new schedule.Range(1, 5)
 rule.hour = 8
-rule.minute = 38
+rule.minute = 0
 
 // kicks off job
 schedule.scheduleJob(rule, () => getCovers())
 
-app.listen(process.env.PORT, () => {
-    console.log(`shit is doing down on ${process.env.PORT}`)
-
-    // test msg
-    twilioClient.messages.create({
-        to: RECIPIENT_NUMBER,
-        from: TWILIO_NUMBER,
-        body: 'server is up and running',
-    }, (err, message) => {
-        if (message) console.log(message)
-        if (err) console.log(err)
+// keep herkou awake
+setInterval(() => {
+    request('https://obscure-oasis-13928.herokuapp.com/', (error, response, body) => {
+        console.log('ding ding - wake up')
     })
-})
+}, 300000)
