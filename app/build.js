@@ -26,6 +26,10 @@ var _express = require('express');
 
 var _express2 = _interopRequireDefault(_express);
 
+var _bodyParser = require('body-parser');
+
+var _bodyParser2 = _interopRequireDefault(_bodyParser);
+
 _dotenv2['default'].config();
 
 var URL = 'http://nypost.com/covers/';
@@ -39,12 +43,34 @@ var twilioClient = (0, _twilio2['default'])(ACCOUNT_SID, AUTH_TOKEN);
 var app = (0, _express2['default'])();
 
 app.use(_express2['default']['static'](__dirname + '/public'));
+app.use(_bodyParser2['default'].urlencoded({ extended: true }));
+
 app.get('/', function (req, res) {
     return res.sendFile('index.html', { root: __dirname + '/public' });
 });
+
+app.post('/sms', function (req, res) {
+    var body = req.body.Body.toLowerCase();
+    var twiml = new _twilio2['default'].TwimlResponse();
+
+    if (body === 'today\'s cover' || body === 'todays cover' || body === 'today cover') {
+        return fetchCovers().then(function (cover) {
+            twiml.message(function () {
+                this.media(cover);
+            });
+            res.writeHead(200, { 'Content-Type': 'text/xml' });
+            res.end(twiml.toString());
+        });
+    } else {
+        twiml.message('Hello from NY Post Covers. To fetch the cover of the day, respond with "today\'s cover"');
+        res.writeHead(200, { 'Content-Type': 'text/xml' });
+        res.end(twiml.toString());
+    }
+});
+
 app.listen(process.env.PORT);
 
-var sendMMS = function sendMMS(coverUrl) {
+var sendCover = function sendCover(coverUrl) {
     twilioClient.messages.create({
         to: RECIPIENT_NUMBER,
         from: TWILIO_NUMBER,
@@ -55,31 +81,35 @@ var sendMMS = function sendMMS(coverUrl) {
     });
 };
 
-var getCovers = function getCovers() {
-    return (0, _request2['default'])(URL, function (error, response, html) {
-        var $ = _cheerio2['default'].load(html);
-        var covers = [];
+var fetchCovers = function fetchCovers() {
+    return new Promise(function (resolve, reject) {
+        (0, _request2['default'])(URL, function (error, response, html) {
+            var $ = _cheerio2['default'].load(html);
+            var covers = [];
 
-        $('.featured-cover .entry-thumbnail.front source').each(function (i, element) {
-            return covers.push($(element).attr('srcset'));
+            $('.featured-cover .entry-thumbnail.front source').each(function (i, element) {
+                return covers.push($(element).attr('srcset'));
+            });
+
+            resolve(covers[0]);
         });
-
-        sendMMS(covers[0]);
     });
 };
 
-// set reoccurring job every mon, tues, wed, thur, fri @ 0800
+// set reoccurring job every mon, tues, wed, thur, fri @ 1200 UCT (0800 EST)
 var rule = new _nodeSchedule2['default'].RecurrenceRule();
 rule.dayOfWeek = new _nodeSchedule2['default'].Range(1, 5);
-rule.hour = 8;
+rule.hour = 12;
 rule.minute = 0;
 
-// kicks off job
+// kick off job
 _nodeSchedule2['default'].scheduleJob(rule, function () {
-    return getCovers();
+    fetchCovers().then(function (cover) {
+        return sendCover(cover);
+    });
 });
 
-// keep herkou awake
+// keep herkou awake - pings the app every 5 minutes
 setInterval(function () {
     (0, _request2['default'])('https://obscure-oasis-13928.herokuapp.com/', function (error, response, body) {
         console.log('ding ding - wake up');

@@ -4,7 +4,11 @@
   "description": "Get the Post's cover texted to your phone every morning.",
   "main": "app/build.js",
   "author": "cheshireoctopus",
+  "scripts": {
+    "build": "babel app/index.js --out-file app/build.js"
+  },
   "dependencies": {
+    "body-parser": "^1.15.2",
     "cheerio": "^0.22.0",
     "dotenv": "^2.0.0",
     "express": "^4.14.0",
