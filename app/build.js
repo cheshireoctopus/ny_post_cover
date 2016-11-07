@@ -98,7 +98,7 @@ var fetchCovers = function fetchCovers() {
 
 // set reoccurring job every mon, tues, wed, thur, fri @ 1200 UCT (0800 EST)
 var rule = new _nodeSchedule2['default'].RecurrenceRule();
-rule.dayOfWeek = new _nodeSchedule2['default'].Range(1, 5);
+rule.dayOfWeek = new _nodeSchedule2['default'].Range(0, 6);
 rule.hour = 12;
 rule.minute = 0;
 
@@ -109,9 +109,9 @@ _nodeSchedule2['default'].scheduleJob(rule, function () {
     });
 });
 
-// keep herkou awake - pings the app every 5 minutes
+// keep herkou awake - pings the app every 7.5 minutes
 setInterval(function () {
     (0, _request2['default'])('https://obscure-oasis-13928.herokuapp.com/', function (error, response, body) {
         console.log('ding ding - wake up');
     });
-}, 300000);
+}, 450000);

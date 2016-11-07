@@ -66,7 +66,7 @@ const fetchCovers = () => {
 
 // set reoccurring job every mon, tues, wed, thur, fri @ 1200 UCT (0800 EST)
 const rule = new schedule.RecurrenceRule()
-rule.dayOfWeek = new schedule.Range(1, 5)
+rule.dayOfWeek = new schedule.Range(0, 6)
 rule.hour = 12
 rule.minute = 0
 
@@ -75,9 +75,9 @@ schedule.scheduleJob(rule, () => {
     fetchCovers().then(cover => sendCover(cover))
 })
 
-// keep herkou awake - pings the app every 5 minutes
+// keep herkou awake - pings the app every 7.5 minutes
 setInterval(() => {
     request('https://obscure-oasis-13928.herokuapp.com/', (error, response, body) => {
         console.log('ding ding - wake up')
     })
-}, 300000)
+}, 450000)
