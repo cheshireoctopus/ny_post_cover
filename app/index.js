@@ -9,7 +9,7 @@ import bodyParser from 'body-parser'
 dotenv.config()
 
 const URL = 'http://nypost.com/covers/'
-const { ACCOUNT_SID, AUTH_TOKEN, TWILIO_NUMBER, RECIPIENT_NUMBER } = process.env
+const { ACCOUNT_SID, AUTH_TOKEN, TWILIO_NUMBER, RECIPIENT_NUMBER, APP_URL } = process.env
 const twilioClient = twilio(ACCOUNT_SID, AUTH_TOKEN)
 const app = express()
 
@@ -77,7 +77,7 @@ schedule.scheduleJob(rule, () => {
 
 // keep herkou awake - pings the app every 7.5 minutes
 setInterval(() => {
-    request('https://obscure-oasis-13928.herokuapp.com/', (error, response, body) => {
+    request(APP_URLAPP_URL, (error, response, body) => {
         console.log('ding ding - wake up')
     })
 }, 450000)
