@@ -76,8 +76,8 @@ schedule.scheduleJob(rule, () => {
 })
 
 // keep herkou awake - pings the app every 7.5 minutes
-setInterval(() => {
-    request(APP_URLAPP_URL, (error, response, body) => {
-        console.log('ding ding - wake up')
-    })
-}, 450000)
+// setInterval(() => {
+//     request(APP_URLAPP_URL, (error, response, body) => {
+//         console.log('ding ding - wake up')
+//     })
+// }, 450000)

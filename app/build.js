@@ -38,6 +38,7 @@ var ACCOUNT_SID = _process$env.ACCOUNT_SID;
 var AUTH_TOKEN = _process$env.AUTH_TOKEN;
 var TWILIO_NUMBER = _process$env.TWILIO_NUMBER;
 var RECIPIENT_NUMBER = _process$env.RECIPIENT_NUMBER;
+var APP_URL = _process$env.APP_URL;
 
 var twilioClient = (0, _twilio2['default'])(ACCOUNT_SID, AUTH_TOKEN);
 var app = (0, _express2['default'])();
@@ -110,8 +111,8 @@ _nodeSchedule2['default'].scheduleJob(rule, function () {
 });
 
 // keep herkou awake - pings the app every 7.5 minutes
-setInterval(function () {
-    (0, _request2['default'])('https://obscure-oasis-13928.herokuapp.com/', function (error, response, body) {
-        console.log('ding ding - wake up');
-    });
-}, 450000);
+// setInterval(() => {
+//     request(APP_URLAPP_URL, (error, response, body) => {
+//         console.log('ding ding - wake up')
+//     })
+// }, 450000)
