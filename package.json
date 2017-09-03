@@ -5,7 +5,8 @@
   "main": "app/build.js",
   "author": "cheshireoctopus",
   "scripts": {
-    "build": "babel app/index.js --out-file app/build.js"
+    "build": "babel --presets env app/index.js --out-file app/build.js",
+    "watch": "babel --presets env app/index.js -w --out-file app/build.js"
   },
   "dependencies": {
     "body-parser": "^1.15.2",
@@ -17,6 +18,8 @@
     "twilio": "^2.11.0"
   },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.0",
     "nodemon": "^1.11.0"
   }
 }

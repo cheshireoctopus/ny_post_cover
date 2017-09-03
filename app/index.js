@@ -8,7 +8,7 @@ import bodyParser from 'body-parser'
 
 dotenv.config()
 
-const URL = 'http://nypost.com/covers/'
+const URL = 'http://nypost.com/'
 const { ACCOUNT_SID, AUTH_TOKEN, TWILIO_NUMBER, RECIPIENT_NUMBER, APP_URL } = process.env
 const twilioClient = twilio(ACCOUNT_SID, AUTH_TOKEN)
 const app = express()
@@ -17,6 +17,14 @@ app.use(express.static(__dirname + '/public'))
 app.use(bodyParser.urlencoded({ extended: true }))
 
 app.get('/', (req, res) => res.sendFile('index.html', { root: __dirname + '/public' }))
+
+app.get('/test', (req, res) => {
+    fetchCovers().then(cover => {
+        console.log(cover)
+        sendCover(cover)
+        res.end()
+    })
+})
 
 app.post('/sms', (req, res) => {
     const body = req.body.Body.toLowerCase()
@@ -55,11 +63,9 @@ const fetchCovers = () => {
     return new Promise((resolve, reject) => {
         request(URL, (error, response, html) => {
             const $ = cheerio.load(html)
-            let covers = []
+            const dataSrcset = $('#home-page-top-right-sidebar picture source').attr('data-srcset').split(' ')
 
-            $('.featured-cover .entry-thumbnail.front source').each((i, element) => covers.push($(element).attr('srcset')))
-
-            resolve(covers[0])
+            resolve(dataSrcset[0])
         })
     })
 }
@@ -76,8 +82,8 @@ schedule.scheduleJob(rule, () => {
 })
 
 // keep herkou awake - pings the app every 7.5 minutes
-// setInterval(() => {
-//     request(APP_URLAPP_URL, (error, response, body) => {
-//         console.log('ding ding - wake up')
-//     })
-// }, 450000)
+setInterval(() => {
+    request(APP_URL, (error, response, body) => {
+        console.log('ding ding - wake up')
+    })
+}, 450000)

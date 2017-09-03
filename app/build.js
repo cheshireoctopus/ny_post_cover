@@ -1,7 +1,5 @@
 'use strict';
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
 var _dotenv = require('dotenv');
 
 var _dotenv2 = _interopRequireDefault(_dotenv);
@@ -30,29 +28,39 @@ var _bodyParser = require('body-parser');
 
 var _bodyParser2 = _interopRequireDefault(_bodyParser);
 
-_dotenv2['default'].config();
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var URL = 'http://nypost.com/covers/';
-var _process$env = process.env;
-var ACCOUNT_SID = _process$env.ACCOUNT_SID;
-var AUTH_TOKEN = _process$env.AUTH_TOKEN;
-var TWILIO_NUMBER = _process$env.TWILIO_NUMBER;
-var RECIPIENT_NUMBER = _process$env.RECIPIENT_NUMBER;
-var APP_URL = _process$env.APP_URL;
+_dotenv2.default.config();
 
-var twilioClient = (0, _twilio2['default'])(ACCOUNT_SID, AUTH_TOKEN);
-var app = (0, _express2['default'])();
+var URL = 'http://nypost.com/';
+var _process$env = process.env,
+    ACCOUNT_SID = _process$env.ACCOUNT_SID,
+    AUTH_TOKEN = _process$env.AUTH_TOKEN,
+    TWILIO_NUMBER = _process$env.TWILIO_NUMBER,
+    RECIPIENT_NUMBER = _process$env.RECIPIENT_NUMBER,
+    APP_URL = _process$env.APP_URL;
 
-app.use(_express2['default']['static'](__dirname + '/public'));
-app.use(_bodyParser2['default'].urlencoded({ extended: true }));
+var twilioClient = (0, _twilio2.default)(ACCOUNT_SID, AUTH_TOKEN);
+var app = (0, _express2.default)();
+
+app.use(_express2.default.static(__dirname + '/public'));
+app.use(_bodyParser2.default.urlencoded({ extended: true }));
 
 app.get('/', function (req, res) {
     return res.sendFile('index.html', { root: __dirname + '/public' });
 });
 
+app.get('/test', function (req, res) {
+    fetchCovers().then(function (cover) {
+        console.log(cover);
+        sendCover(cover);
+        res.end();
+    });
+});
+
 app.post('/sms', function (req, res) {
     var body = req.body.Body.toLowerCase();
-    var twiml = new _twilio2['default'].TwimlResponse();
+    var twiml = new _twilio2.default.TwimlResponse();
 
     if (body === 'today\'s cover' || body === 'todays cover' || body === 'today cover') {
         return fetchCovers().then(function (cover) {
@@ -84,35 +92,31 @@ var sendCover = function sendCover(coverUrl) {
 
 var fetchCovers = function fetchCovers() {
     return new Promise(function (resolve, reject) {
-        (0, _request2['default'])(URL, function (error, response, html) {
-            var $ = _cheerio2['default'].load(html);
-            var covers = [];
+        (0, _request2.default)(URL, function (error, response, html) {
+            var $ = _cheerio2.default.load(html);
+            var dataSrcset = $('#home-page-top-right-sidebar picture source').attr('data-srcset').split(' ');
 
-            $('.featured-cover .entry-thumbnail.front source').each(function (i, element) {
-                return covers.push($(element).attr('srcset'));
-            });
-
-            resolve(covers[0]);
+            resolve(dataSrcset[0]);
         });
     });
 };
 
 // set reoccurring job every mon, tues, wed, thur, fri @ 1200 UCT (0800 EST)
-var rule = new _nodeSchedule2['default'].RecurrenceRule();
-rule.dayOfWeek = new _nodeSchedule2['default'].Range(0, 6);
+var rule = new _nodeSchedule2.default.RecurrenceRule();
+rule.dayOfWeek = new _nodeSchedule2.default.Range(0, 6);
 rule.hour = 12;
 rule.minute = 0;
 
 // kick off job
-_nodeSchedule2['default'].scheduleJob(rule, function () {
+_nodeSchedule2.default.scheduleJob(rule, function () {
     fetchCovers().then(function (cover) {
         return sendCover(cover);
     });
 });
 
 // keep herkou awake - pings the app every 7.5 minutes
-// setInterval(() => {
-//     request(APP_URLAPP_URL, (error, response, body) => {
-//         console.log('ding ding - wake up')
-//     })
-// }, 450000)
+setInterval(function () {
+    (0, _request2.default)(APP_URL, function (error, response, body) {
+        console.log('ding ding - wake up');
+    });
+}, 450000);
