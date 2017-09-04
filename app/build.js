@@ -51,10 +51,9 @@ app.get('/', function (req, res) {
 });
 
 app.get('/test', function (req, res) {
-    fetchCovers().then(function (cover) {
-        console.log(cover);
+    fetchCover().then(function (cover) {
         sendCover(cover);
-        res.end();
+        res.send('<img src="' + cover + '">');
     });
 });
 
@@ -63,7 +62,7 @@ app.post('/sms', function (req, res) {
     var twiml = new _twilio2.default.TwimlResponse();
 
     if (body === 'today\'s cover' || body === 'todays cover' || body === 'today cover') {
-        return fetchCovers().then(function (cover) {
+        return fetchCover().then(function (cover) {
             twiml.message(function () {
                 this.media(cover);
             });
@@ -85,18 +84,18 @@ var sendCover = function sendCover(coverUrl) {
         from: TWILIO_NUMBER,
         mediaUrl: coverUrl
     }, function (err, message) {
-        if (message) console.log(message);
-        if (err) console.log(err);
+        if (message) console.log('MESSAGE: ', message);
+        if (err) console.log('ERROR: ', err);
     });
 };
 
-var fetchCovers = function fetchCovers() {
+var fetchCover = function fetchCover() {
     return new Promise(function (resolve, reject) {
         (0, _request2.default)(URL, function (error, response, html) {
             var $ = _cheerio2.default.load(html);
-            var dataSrcset = $('#home-page-top-right-sidebar picture source').attr('data-srcset').split(' ');
-
-            resolve(dataSrcset[0]);
+            var cover = $('#home-page-top-right-sidebar picture source').attr('data-srcset').split(' ')[0];
+            console.log('COVER: ', cover);
+            resolve(cover);
         });
     });
 };
@@ -109,7 +108,7 @@ rule.minute = 0;
 
 // kick off job
 _nodeSchedule2.default.scheduleJob(rule, function () {
-    fetchCovers().then(function (cover) {
+    fetchCover().then(function (cover) {
         return sendCover(cover);
     });
 });

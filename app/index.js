@@ -19,10 +19,9 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.get('/', (req, res) => res.sendFile('index.html', { root: __dirname + '/public' }))
 
 app.get('/test', (req, res) => {
-    fetchCovers().then(cover => {
-        console.log(cover)
+    fetchCover().then(cover => {
         sendCover(cover)
-        res.end()
+        res.send(`<img src="${cover}">`)
     })
 })
 
@@ -31,7 +30,7 @@ app.post('/sms', (req, res) => {
     const twiml = new twilio.TwimlResponse()
 
     if (body === 'today\'s cover' || body === 'todays cover' || body === 'today cover') {
-        return fetchCovers()
+        return fetchCover()
             .then(cover => {
                 twiml.message(function() {
                   this.media(cover);
@@ -54,18 +53,18 @@ const sendCover = (coverUrl) => {
         from: TWILIO_NUMBER,
         mediaUrl: coverUrl,
     }, (err, message) => {
-        if (message) console.log(message)
-        if (err) console.log(err)
+        if (message) console.log('MESSAGE: ', message)
+        if (err) console.log('ERROR: ', err)
     })
 }
 
-const fetchCovers = () => {
+const fetchCover = () => {
     return new Promise((resolve, reject) => {
         request(URL, (error, response, html) => {
             const $ = cheerio.load(html)
-            const dataSrcset = $('#home-page-top-right-sidebar picture source').attr('data-srcset').split(' ')
-
-            resolve(dataSrcset[0])
+            const cover = $('#home-page-top-right-sidebar picture source').attr('data-srcset').split(' ')[0]
+            console.log('COVER: ', cover)
+            resolve(cover)
         })
     })
 }
@@ -78,7 +77,7 @@ rule.minute = 0
 
 // kick off job
 schedule.scheduleJob(rule, () => {
-    fetchCovers().then(cover => sendCover(cover))
+    fetchCover().then(cover => sendCover(cover))
 })
 
 // keep herkou awake - pings the app every 7.5 minutes
