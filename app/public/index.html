@@ -1,5 +1,42 @@
 <!DOCTYPE>
-<head></head>
+<head>
+  <style>
+    body {
+      background: #c33;
+      height: 100%;
+      width: 100%;
+      margin: 0;
+      font-family: sans-serif;
+    }
+    .container {
+      height: 100%;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+  </style>
+</head>
 <body>
-	<h1>NY Post covers delivered to you daily via MMS</h1>
+  <div class="container">
+    <h1>NY Post covers delivered to you daily via SMS</h1>
+    <button class="get-some">Hit Me</button>
+    <div class="cover"></div>
+  </div>
+  <script>
+    document.querySelector('.get-some').onclick = getSome
+
+    function getSome () {
+      fetch('/fetch')
+        .then(function(res) {
+          return res.json()
+        })
+        .then(function (json) {
+          const img = document.createElement('img')
+          img.setAttribute('src', json.url)
+          document.querySelector('.cover').appendChild(img)
+        })
+    }
+  </script>
 </body>

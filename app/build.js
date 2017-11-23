@@ -57,6 +57,13 @@ app.get('/test', function (req, res) {
     });
 });
 
+app.get('/fetch', function (req, res) {
+    fetchCover().then(function (url) {
+        res.setHeader('Content-Type', 'application/json');
+        res.send(JSON.stringify({ url: url }));
+    });
+});
+
 app.post('/sms', function (req, res) {
     var body = req.body.Body.toLowerCase();
     var twiml = new _twilio2.default.TwimlResponse();
@@ -93,14 +100,19 @@ var fetchCover = function fetchCover() {
     return new Promise(function (resolve, reject) {
         (0, _request2.default)(URL, function (error, response, html) {
             var $ = _cheerio2.default.load(html);
-            var cover = $('#home-page-top-right-sidebar picture source').attr('data-srcset').split(' ')[0];
-            console.log('COVER: ', cover);
-            resolve(cover);
+            var cover = $('#home-page-top-right-sidebar picture source').attr('data-srcset');
+
+            if (cover) {
+                var imgUrl = cover.split(' ')[0];
+                resolve(imgUrl);
+            } else {
+                resolve('An error occurred fetching this morning\'s cover.');
+            }
         });
     });
 };
 
-// set reoccurring job every mon, tues, wed, thur, fri @ 1200 UCT (0800 EST)
+// set reoccurring job every mon, tues, wed, thur, fri, sat @ 1200 UTC
 var rule = new _nodeSchedule2.default.RecurrenceRule();
 rule.dayOfWeek = new _nodeSchedule2.default.Range(0, 6);
 rule.hour = 12;
@@ -113,9 +125,9 @@ _nodeSchedule2.default.scheduleJob(rule, function () {
     });
 });
 
-// keep herkou awake - pings the app every 7.5 minutes
+// keep herkou awake - pings the app every 5 minutes
 setInterval(function () {
     (0, _request2.default)(APP_URL, function (error, response, body) {
         console.log('ding ding - wake up');
     });
-}, 450000);
+}, 300000);

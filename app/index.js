@@ -25,6 +25,13 @@ app.get('/test', (req, res) => {
     })
 })
 
+app.get('/fetch', (req, res) => {
+    fetchCover().then(url => {
+        res.setHeader('Content-Type', 'application/json')
+        res.send(JSON.stringify({ url }))
+    })
+})
+
 app.post('/sms', (req, res) => {
     const body = req.body.Body.toLowerCase()
     const twiml = new twilio.TwimlResponse()
@@ -62,14 +69,19 @@ const fetchCover = () => {
     return new Promise((resolve, reject) => {
         request(URL, (error, response, html) => {
             const $ = cheerio.load(html)
-            const cover = $('#home-page-top-right-sidebar picture source').attr('data-srcset').split(' ')[0]
-            console.log('COVER: ', cover)
-            resolve(cover)
+            const cover = $('#home-page-top-right-sidebar picture source').attr('data-srcset')
+
+            if (cover) {
+                const imgUrl = cover.split(' ')[0]
+                resolve(imgUrl)
+            } else {
+                resolve('An error occurred fetching this morning\'s cover.')
+            }
         })
     })
 }
 
-// set reoccurring job every mon, tues, wed, thur, fri @ 1200 UCT (0800 EST)
+// set reoccurring job every mon, tues, wed, thur, fri, sat @ 1200 UTC
 const rule = new schedule.RecurrenceRule()
 rule.dayOfWeek = new schedule.Range(0, 6)
 rule.hour = 12
@@ -80,9 +92,9 @@ schedule.scheduleJob(rule, () => {
     fetchCover().then(cover => sendCover(cover))
 })
 
-// keep herkou awake - pings the app every 7.5 minutes
+// keep herkou awake - pings the app every 5 minutes
 setInterval(() => {
     request(APP_URL, (error, response, body) => {
         console.log('ding ding - wake up')
     })
-}, 450000)
+}, 300000)
