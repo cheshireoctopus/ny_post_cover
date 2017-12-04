@@ -20,23 +20,20 @@
 </head>
 <body>
   <div class="container">
-    <h1>NY Post covers delivered to you daily via SMS</h1>
+    <h1>NYPost Covers via SMS</h1>
     <button class="get-some">Hit Me</button>
     <div class="cover"></div>
   </div>
   <script>
     document.querySelector('.get-some').onclick = getSome
 
-    function getSome () {
-      fetch('/fetch')
-        .then(function(res) {
-          return res.json()
-        })
-        .then(function (json) {
-          const img = document.createElement('img')
-          img.setAttribute('src', json.url)
-          document.querySelector('.cover').appendChild(img)
-        })
+    async function getSome () {
+      const res = await fetch('/cover')
+      const json = await res.json()
+      const img = document.createElement('img')
+
+      img.setAttribute('src', json.url)
+      document.querySelector('.cover').appendChild(img)
     }
   </script>
 </body>
