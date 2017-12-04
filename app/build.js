@@ -57,7 +57,7 @@ app.get('/test', function (req, res) {
     });
 });
 
-app.get('/fetch', function (req, res) {
+app.get('/cover', function (req, res) {
     fetchCover().then(function (url) {
         res.setHeader('Content-Type', 'application/json');
         res.send(JSON.stringify({ url: url }));

@@ -25,7 +25,7 @@ app.get('/test', (req, res) => {
     })
 })
 
-app.get('/fetch', (req, res) => {
+app.get('/cover', (req, res) => {
     fetchCover().then(url => {
         res.setHeader('Content-Type', 'application/json')
         res.send(JSON.stringify({ url }))
