@@ -16,10 +16,6 @@ var _twilio = require('twilio');
 
 var _twilio2 = _interopRequireDefault(_twilio);
 
-var _nodeSchedule = require('node-schedule');
-
-var _nodeSchedule2 = _interopRequireDefault(_nodeSchedule);
-
 var _express = require('express');
 
 var _express2 = _interopRequireDefault(_express);
@@ -27,6 +23,10 @@ var _express2 = _interopRequireDefault(_express);
 var _bodyParser = require('body-parser');
 
 var _bodyParser2 = _interopRequireDefault(_bodyParser);
+
+var _scheduler = require('./scheduler.js');
+
+var _scheduler2 = _interopRequireDefault(_scheduler);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -43,7 +43,7 @@ var _process$env = process.env,
 var twilioClient = (0, _twilio2.default)(ACCOUNT_SID, AUTH_TOKEN);
 var app = (0, _express2.default)();
 
-app.use(_express2.default.static(__dirname + '/public'));
+app.use(_express2.default.static(__dirname + './../public'));
 app.use(_bodyParser2.default.urlencoded({ extended: true }));
 
 app.get('/', function (req, res) {
@@ -83,7 +83,9 @@ app.post('/sms', function (req, res) {
     }
 });
 
-app.listen(process.env.PORT);
+app.listen(process.env.PORT, function () {
+    console.log('The magic is going down at ' + process.env.PORT);
+});
 
 var sendCover = function sendCover(coverUrl) {
     twilioClient.messages.create({
@@ -112,18 +114,12 @@ var fetchCover = function fetchCover() {
     });
 };
 
-// set reoccurring job every mon, tues, wed, thur, fri, sat @ 1200 UTC
-var rule = new _nodeSchedule2.default.RecurrenceRule();
-rule.dayOfWeek = new _nodeSchedule2.default.Range(0, 6);
-rule.hour = 12;
-rule.minute = 0;
-
-// kick off job
-_nodeSchedule2.default.scheduleJob(rule, function () {
-    fetchCover().then(function (cover) {
+var scheduledJob = function scheduledJob() {
+    return fetchCover().then(function (cover) {
         return sendCover(cover);
     });
-});
+};
+var scheduler = new _scheduler2.default(scheduledJob);
 
 // keep herkou awake - pings the app every 5 minutes
 setInterval(function () {

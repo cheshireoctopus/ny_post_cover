@@ -1,22 +1,7 @@
 <!DOCTYPE>
 <head>
-  <style>
-    body {
-      background: #c33;
-      height: 100%;
-      width: 100%;
-      margin: 0;
-      font-family: sans-serif;
-    }
-    .container {
-      height: 100%;
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-    }
-  </style>
+  <title>NYPost Covers via SMS</title>
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
   <div class="container">
@@ -24,16 +9,5 @@
     <button class="get-some">Hit Me</button>
     <div class="cover"></div>
   </div>
-  <script>
-    document.querySelector('.get-some').onclick = getSome
-
-    async function getSome () {
-      const res = await fetch('/cover')
-      const json = await res.json()
-      const img = document.createElement('img')
-
-      img.setAttribute('src', json.url)
-      document.querySelector('.cover').appendChild(img)
-    }
-  </script>
+  <script src="js/app.js"></script>
 </body>

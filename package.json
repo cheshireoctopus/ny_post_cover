@@ -2,20 +2,21 @@
   "name": "ny_post_cover",
   "version": "1.0.0",
   "description": "Get the Post's cover texted to your phone every morning.",
-  "main": "app/build.js",
+  "main": "app/lib/build.js",
   "author": "cheshireoctopus",
   "scripts": {
-    "build": "babel --presets env app/index.js --out-file app/build.js",
-    "watch": "babel --presets env app/index.js -w --out-file app/build.js"
+    "build": "babel --presets env app/src --out-file app/lib/build.js",
+    "watch": "babel --presets env app/src --out-dir app/lib"
   },
   "dependencies": {
     "body-parser": "^1.15.2",
-    "cheerio": "^0.22.0",
-    "dotenv": "^2.0.0",
+    "cheerio": "^1.0.0-rc.2",
+    "dotenv": "^5.0.1",
     "express": "^4.14.0",
+    "moment": "^2.22.0",
     "node-schedule": "^1.2.0",
     "request": "^2.76.0",
-    "twilio": "^2.11.0"
+    "twilio": "^3.15.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
