@@ -1,16 +1,16 @@
 import dotenv from 'dotenv'
 import cheerio from 'cheerio'
 import request from 'request'
-import twilio from 'twilio'
 import express from 'express'
 import bodyParser from 'body-parser'
-import Scheduler from './scheduler.js' 
+import Scheduler from './scheduler.js'
+import sendCover from './messenger.js'
 
 dotenv.config()
 
 const URL = 'http://nypost.com/'
-const { ACCOUNT_SID, AUTH_TOKEN, TWILIO_NUMBER, RECIPIENT_NUMBER, APP_URL } = process.env
-const twilioClient = twilio(ACCOUNT_SID, AUTH_TOKEN)
+const { APP_URL } = process.env
+
 const app = express()
 
 app.use(express.static(__dirname + './../public'))
@@ -55,17 +55,6 @@ app.post('/sms', (req, res) => {
 app.listen(process.env.PORT, () => {
     console.log(`The magic is going down at ${process.env.PORT}`)
 })
-
-const sendCover = (coverUrl) => {
-    twilioClient.messages.create({
-        to: RECIPIENT_NUMBER,
-        from: TWILIO_NUMBER,
-        mediaUrl: coverUrl,
-    }, (err, message) => {
-        if (message) console.log('MESSAGE: ', message)
-        if (err) console.log('ERROR: ', err)
-    })
-}
 
 const fetchCover = () => {
     return new Promise((resolve, reject) => {

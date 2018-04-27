@@ -6,7 +6,7 @@
   "author": "cheshireoctopus",
   "scripts": {
     "build": "babel --presets env app/src --out-file app/lib/build.js",
-    "watch": "babel --presets env app/src --out-dir app/lib"
+    "watch": "babel --presets env app/src --watch --out-file app/lib/build.js"
   },
   "dependencies": {
     "body-parser": "^1.15.2",
