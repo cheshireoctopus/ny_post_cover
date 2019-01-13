@@ -1,0 +1,37 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    dotenv (2.6.0)
+    faraday (0.15.4)
+      multipart-post (>= 1.2, < 3)
+    jwt (2.1.0)
+    mini_portile2 (2.4.0)
+    multipart-post (2.0.0)
+    mustermann (1.0.3)
+    nokogiri (1.10.1)
+      mini_portile2 (~> 2.4.0)
+    rack (2.0.6)
+    rack-protection (2.0.5)
+      rack
+    sinatra (2.0.5)
+      mustermann (~> 1.0)
+      rack (~> 2.0)
+      rack-protection (= 2.0.5)
+      tilt (~> 2.0)
+    tilt (2.0.9)
+    twilio-ruby (5.19.0)
+      faraday (~> 0.9)
+      jwt (>= 1.5, <= 2.5)
+      nokogiri (>= 1.6, < 2.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  dotenv
+  nokogiri
+  sinatra
+  twilio-ruby
+
+BUNDLED WITH
+   1.16.2
