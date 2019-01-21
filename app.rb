@@ -1,6 +1,7 @@
 require 'dotenv/load'
 require 'sinatra'
 require 'open-uri'
+require 'net/http'
 require 'nokogiri'
 require 'twilio-ruby'
 require 'rufus-scheduler'
@@ -33,6 +34,11 @@ def sms_the_cover(cover_url)
 end
 
 scheduler = Rufus::Scheduler.new
+
+scheduler.every '7m' do
+  uri = URI('https://ny-post-cover.herokuapp.com/')
+  Net::HTTP.get(uri)
+end
 
 scheduler.cron('0 8 * * *') do
   @cover_url = scrape_the_post
