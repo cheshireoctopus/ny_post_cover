@@ -13,9 +13,15 @@ RECIPIENT_NUMBER = ENV['RECIPIENT_NUMBER']
 
 get '/' do
   @cover_url = scrape_the_post
-  sms_the_cover(@cover_url)
 
   erb :index
+end
+
+get '/test' do
+  @cover_url = scrape_the_post
+  sms_the_cover(@cover_url)
+
+  'testing'
 end
 
 def scrape_the_post
