@@ -46,7 +46,7 @@ scheduler.every '7m' do
   Net::HTTP.get(uri)
 end
 
-scheduler.cron('0 8 * * *') do
+scheduler.cron('0 12 * * *') do
   @cover_url = scrape_the_post
   sms_the_cover(@cover_url)
 end
