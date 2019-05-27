@@ -12,24 +12,24 @@ TWILIO_NUMBER = ENV['TWILIO_NUMBER']
 RECIPIENT_NUMBER = ENV['RECIPIENT_NUMBER']
 
 get '/' do
-  @cover_url = scrape_the_post
+  @cover_url = get_cover_url
 
   erb :index
 end
 
 get '/test' do
-  @cover_url = scrape_the_post
-  sms_the_cover(@cover_url)
+  cover_url = get_cover_url
+  sms_cover(cover_url)
 
   'testing'
 end
 
-def scrape_the_post
+def get_cover_url
   doc = Nokogiri::HTML(open("https://nypost.com/covers/"))
   doc.css('source')[0]['data-srcset'].split().first
 end
 
-def sms_the_cover(cover_url)
+def sms_cover(cover_url)
   client = Twilio::REST::Client.new(ACCOUNT_SID, AUTH_TOKEN)
 
   message = client.messages.create(
@@ -47,6 +47,6 @@ scheduler.every '7m' do
 end
 
 scheduler.cron('0 12 * * *') do
-  @cover_url = scrape_the_post
-  sms_the_cover(@cover_url)
+  cover_url = get_cover_url
+  sms_cover(cover_url)
 end
