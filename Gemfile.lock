@@ -17,7 +17,7 @@ GEM
     nokogiri (1.10.1)
       mini_portile2 (~> 2.4.0)
     raabro (1.1.6)
-    rack (2.0.6)
+    rack (2.0.8)
     rack-protection (2.0.5)
       rack
     rufus-scheduler (3.5.2)
