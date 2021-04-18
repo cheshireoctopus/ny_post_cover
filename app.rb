@@ -1,5 +1,6 @@
 require 'dotenv/load'
 require 'sinatra'
+require 'sinatra/reloader' if development?
 require 'open-uri'
 require 'net/http'
 require 'nokogiri'
@@ -21,7 +22,7 @@ get '/test' do
   cover_url = get_cover_url
   sms_cover(cover_url)
 
-  'testing'
+  "testing #{cover_url}"
 end
 
 def get_cover_url
@@ -32,7 +33,7 @@ end
 def sms_cover(cover_url)
   client = Twilio::REST::Client.new(ACCOUNT_SID, AUTH_TOKEN)
 
-  message = client.messages.create(
+  client.messages.create(
     from: TWILIO_NUMBER,
     to: RECIPIENT_NUMBER,
     media_url: cover_url
